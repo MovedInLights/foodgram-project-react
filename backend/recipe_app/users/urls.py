@@ -1,8 +1,7 @@
 # users/urls
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth.views import (LogoutView,
-                                       PasswordChangeView,
+from django.contrib.auth.views import (LogoutView, PasswordChangeView,
                                        PasswordResetCompleteView,
                                        PasswordResetConfirmView,
                                        PasswordResetDoneView,

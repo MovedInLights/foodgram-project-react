@@ -1,12 +1,18 @@
+from colorfield.fields import ColorField
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from users.models import User
 
 
 class Ingredients(models.Model):
-    name = models.CharField(max_length=200)
-    amount = models.IntegerField(null=True, blank=True)
-    measurement_unit = models.CharField(max_length=200)
+    name = models.CharField(
+        null=True, blank=True, max_length=200, verbose_name='Ingredient_name'
+    )
+    amount = models.IntegerField(
+        null=True, blank=True, verbose_name='Ingredient_amount'
+    )
+    measurement_unit = models.CharField(max_length=20)
 
     def __str__(self):
         return self.name
@@ -17,9 +23,9 @@ class Ingredients(models.Model):
 
 
 class Tags(models.Model):
-    name = models.CharField(max_length=200)
-    color = models.CharField(max_length=200)
-    slug = models.SlugField()
+    name = models.CharField(max_length=200, verbose_name='Tag_name')
+    color = ColorField(default='#FF0000', verbose_name='Tag_color')
+    slug = models.SlugField(unique=True, verbose_name='Tag_slug')
 
     def __str__(self):
         return self.name
@@ -30,17 +36,37 @@ class Tags(models.Model):
 
 
 class Recipes(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name='Recipe_name')
     image = models.ImageField(
-        upload_to='recipes/images', blank=True, default=None
+        upload_to='recipes/images',
+        blank=True,
+        default=None,
+        verbose_name='Ingredient_image',
     )
-    text = models.CharField(max_length=500)
-    ingredients = models.ManyToManyField(Ingredients)
-    tags = models.ManyToManyField(Tags)
-    cooking_time = models.IntegerField()
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    is_favorited = models.BooleanField(default=False)
-    is_in_shopping_cart = models.BooleanField(default=False)
+    text = models.CharField(max_length=500, verbose_name='Recipe_description')
+    ingredients = models.ManyToManyField(
+        Ingredients, verbose_name='Related_ingredients'
+    )
+    tags = models.ManyToManyField(Tags, verbose_name='Recipe_tags')
+    cooking_time = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)],
+        verbose_name='How_long_to_cook')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Name_of_the_chief')
+    is_favorited = models.BooleanField(
+        default=False,
+        verbose_name='Is_in_favorite'
+    )
+    is_in_shopping_cart = models.BooleanField(
+        default=False,
+        verbose_name='Is_in_shopping_cart'
+    )
+    pub_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Publication_date'
+    )
 
     def __str__(self):
         return self.name
@@ -55,23 +81,27 @@ class RecipeIngredients(models.Model):
         Recipes,
         on_delete=models.CASCADE,
         related_name='recipe_with_ing',
+
     )
-    ingredients = models.ForeignKey(
+    related_ingredient = models.ForeignKey(
         Ingredients,
         on_delete=models.CASCADE,
         related_name='ingredients_for_recipe',
     )
 
-    amount = models.IntegerField(null=True, blank=True)
+    quantity = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Amount_for_particular_recipe')
     measurement_unit = models.CharField(max_length=200)
 
     class Meta:
-        unique_together = ('recipe', 'ingredients')
+        unique_together = ('recipe', 'related_ingredient')
         verbose_name = 'RecipeIngredient'
         verbose_name_plural = 'RecipeIngredients'
 
     def __str__(self):
-        return f'{self.recipe} {self.ingredients}'
+        return f'Recipe {self.recipe}, Ingredient {self.related_ingredient}'
 
 
 class ShoppingCart(models.Model):

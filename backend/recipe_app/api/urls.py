@@ -5,8 +5,8 @@ from rest_framework.authtoken import views
 from rest_framework.routers import DefaultRouter
 
 from .views import (AllFollowingView, DownloadShoppingCartView, FavoriteView,
-                    FollowView, IngredientsViewSet, LogoutView,
-                    RecipesViewSet, RegisterView, ShoppingCartView, TagViewSet,
+                    FollowView, IngredientsViewSet, LogoutView, RecipesViewSet,
+                    RegisterView, ShoppingCartView, TagViewSet,
                     UserCustomViewSet)
 
 router_v1 = DefaultRouter()

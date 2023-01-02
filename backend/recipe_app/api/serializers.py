@@ -5,7 +5,7 @@ from django.core.files.base import ContentFile
 from djoser.serializers import SetPasswordSerializer, UserCreateSerializer
 from rest_framework import serializers
 
-from recipe.models import Ingredients, Recipes, Tags
+from recipe.models import Ingredients, RecipeIngredients, Recipes, Tags
 from users.models import Follow, User
 
 
@@ -90,13 +90,6 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
         fields = ('user', 'following')
 
-    def validate(self, data):
-        if self.context['request'].user == data['following']:
-            raise serializers.ValidationError(
-                'Попытка подписаться на самого себя'
-            )
-        return data
-
 
 class CustomSetPasswordSerializer(SetPasswordSerializer):
 
@@ -131,14 +124,16 @@ class IngredientsSerializer(serializers.ModelSerializer):
 class IngredientsSerializerRecipes(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('id', 'amount')
+        fields = ('id', 'amount', 'measurement_unit')
         model = Ingredients
 
 
 class RecipesSerializer(serializers.ModelSerializer):
-    author = UserSerializer()
+    author = UserSerializer(read_only=True)
     image = Picture2Text(required=False, allow_null=True, read_only=True)
-    ingredients = IngredientsSerializer(many=True, required=False)
+    ingredients = IngredientsSerializer(
+        many=True, required=False, partial=True
+    )
 
     class Meta:
         model = Recipes
@@ -161,19 +156,31 @@ class RecipesSerializer(serializers.ModelSerializer):
         tags = validated_data.get('tags')
         instance.ingredients.clear()
         instance.tags.clear()
-
         for ingredient in ingredients:
-            ingredient, created = Ingredients.objects.get_or_create(
-                id=ingredient['id']
+
+            RecipeIngredients.objects.update_or_create(
+                related_ingredient_id=ingredient['id'],
+                recipe_id=instance.id,
+                quantity=ingredient['amount']
             )
-            instance.ingredients.add(ingredient)
+            instance.ingredients.add(ingredient['id'])
 
         for tag in tags:
             tag = Tags.objects.get(id=tag.id)
             instance.tags.add(tag)
-
         instance.save()
         return instance
+
+    def validate_ingredients(self, data):
+        ingredients = []
+        for items in data:
+            ingredients.append(items['id'])
+        if len(ingredients) != len(set(ingredients)):
+            raise serializers.ValidationError(
+                'Some ingredients are duplicated. '
+                'Please check your data'
+            )
+        return data
 
 
 class RecipesSerializerRestricted(serializers.ModelSerializer):
@@ -214,6 +221,13 @@ class UserFollowSerializer(serializers.ModelSerializer):
             'recipes',
             'recipes_count'
         )
+
+    def validate_following(self, data):
+        if self.context['request'].user == data['following']:
+            raise serializers.ValidationError(
+                'Self follow attempt'
+            )
+        return data
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
