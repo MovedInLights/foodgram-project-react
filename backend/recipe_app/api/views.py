@@ -140,25 +140,24 @@ class FollowView(APIView):
             return Response({
                 "message": "You cant follow self"
             }, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            try:
-                following = User.objects.get(pk=following_id)
-                Follow.objects.create(user=user, following=following)
-                following.is_subscribed = True
-                serializer = UserFollowSerializer(following)
-                return Response(serializer.data)
-            except User.DoesNotExist:
-                return Response({
-                    "message": "User doesnt exist"
-                }, status=status.HTTP_400_BAD_REQUEST)
-            except User.MultipleObjectsReturned:
-                return Response({
-                    "message": "There are many users with that ID!"
-                }, status=status.HTTP_400_BAD_REQUEST)
-            except IntegrityError:
-                return Response({
-                    "message": "Already subscribed"
-                }, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            following = User.objects.get(pk=following_id)
+            Follow.objects.create(user=user, following=following)
+            following.is_subscribed = True
+            serializer = UserFollowSerializer(following)
+            return Response(serializer.data)
+        except User.DoesNotExist:
+            return Response({
+                "message": "User doesnt exist"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except User.MultipleObjectsReturned:
+            return Response({
+                "message": "There are many users with that ID!"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError:
+            return Response({
+                "message": "Already subscribed"
+            }, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
 
@@ -212,8 +211,7 @@ class DownloadShoppingCartView(APIView):
             user_id=self.request.user.id).values_list('recipe', flat=True
                                                       )
         # run dedicated function
-        response = download_shopping_cart(shopping_ids)
-        return response
+        return download_shopping_cart(shopping_ids)
 
 
 class FavoriteView(APIView):
