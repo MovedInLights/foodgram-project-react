@@ -1,6 +1,5 @@
 from django.http import HttpResponse
 from fpdf import FPDF
-
 from recipe.models import Ingredients, RecipeIngredients
 
 ingredients_for_shopping = {}
