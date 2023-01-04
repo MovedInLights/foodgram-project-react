@@ -17,9 +17,14 @@ load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY', default='django_secret')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '51.250.25.9',
+    'localhost',
+    '127.0.0.1',
+    'backend',
+                 ]
 
 
 # Application definition
@@ -156,12 +161,12 @@ USE_TZ = True
 
 STATIC_URL = 'staticfiles/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
