@@ -58,7 +58,7 @@ MIDDLEWARE = [
 
 AUTH_USER_MODEL = 'users.User'
 
-ROOT_URLCONF = 'recipe_app_main.urls'
+ROOT_URLCONF = 'foodgram.urls'
 
 TEMPLATES = [
     {
@@ -76,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'recipe_app_main.wsgi.application'
+WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 
 # Database

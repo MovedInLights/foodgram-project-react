@@ -6,13 +6,13 @@ coreapi==2.3.3
 coreschema==0.0.4
 cryptography==38.0.4
 defusedxml==0.7.1
-Django
+Django==4.1.4
 django-filter==22.1
 django-templated-mail==1.1.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt
 djoser==2.1.0
-flake8
+flake8==6.0.0
 fpdf==1.7.2
 idna==3.4
 isort==5.11.4
