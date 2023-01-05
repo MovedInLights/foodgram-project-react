@@ -12,7 +12,7 @@ django-templated-mail==1.1.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt
 djoser==2.1.0
-flake8==6.0.0
+flake8
 fpdf==1.7.2
 idna==3.4
 isort==5.11.4
