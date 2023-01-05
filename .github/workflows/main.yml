@@ -49,7 +49,7 @@ jobs:
         # Пуш образа в Docker Hub
         uses: docker/build-push-action@v3
         with:
-          contex: ./backend/
+          context: ./backend/
           file: ./backend/Dockerfile
           push: true
           tags: foreverfilthy/foodgram:latest
