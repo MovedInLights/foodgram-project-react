@@ -5,7 +5,7 @@ from rest_framework.authtoken import views
 from rest_framework.routers import DefaultRouter
 
 from .views import (AllFollowingView, DownloadShoppingCartView, FavoriteView,
-                    FollowView, IngredientsViewSet, LogoutView, RecipesViewSet,
+                    FollowView, IngredientsViewSet, LogoutView, LoginView, RecipesViewSet,
                     RegisterView, ShoppingCartView, TagViewSet,
                     UserCustomViewSet)
 
@@ -27,7 +27,7 @@ urlpatterns = [
     path('recipes/download_shopping_cart', DownloadShoppingCartView.as_view()),
     path('recipes/<int:pk1>/favorite/', FavoriteView.as_view()),
     path('users/subscriptions', AllFollowingView.as_view()),
-    path('auth/token/login/', views.obtain_auth_token, name='login'),
+    path('auth/token/login/', LoginView.as_view(), name='login'),
     path('auth/token/logout/', LogoutView.as_view(), name='logout'),
 ]
 if settings.DEBUG:

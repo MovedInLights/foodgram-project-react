@@ -56,11 +56,10 @@ class LoginView(APIView):
 
         response = Response()
 
-        response.set_cookie(key='jwt', value=token)
+        response.set_cookie(key='auth_token', value=token)
         response.data = {
-            'jwt': token
+            'auth_token': token
         }
-        self.check_object_permissions(request)
         return response
 
 
