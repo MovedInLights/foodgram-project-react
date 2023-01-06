@@ -3,7 +3,6 @@ import os
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-
 from recipe.models import Ingredients
 
 BASE_DIR = settings.BASE_DIR

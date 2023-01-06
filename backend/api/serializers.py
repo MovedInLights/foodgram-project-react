@@ -4,7 +4,6 @@ import webcolors
 from django.core.files.base import ContentFile
 from djoser.serializers import SetPasswordSerializer, UserCreateSerializer
 from rest_framework import serializers
-
 from recipe.models import Ingredients, RecipeIngredients, Recipes, Tags
 from users.models import Follow, User
 
