@@ -1,5 +1,4 @@
 import datetime
-
 import jwt
 from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
@@ -9,11 +8,9 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from recipe.models import (Favorite, Ingredients, RecipeIngredients, Recipes,
                            ShoppingCart, Tags)
 from users.models import Follow, User
-
 from .download_shopping_cart import download_shopping_cart
 from .filters import RecipeFilter
 from .serializers import (CustomSetPasswordSerializer, IngredientsSerializer,
