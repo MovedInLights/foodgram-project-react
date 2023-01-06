@@ -8,7 +8,6 @@ from djoser.serializers import SetPasswordSerializer, UserCreateSerializer
 from rest_framework import serializers
 
 
-
 class Name2Hex(serializers.Field):
     def to_representation(self, value):
         return value
