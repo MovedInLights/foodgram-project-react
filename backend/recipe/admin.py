@@ -1,6 +1,7 @@
 from django.contrib import admin
 from recipe.models import (Favorite, Ingredients, RecipeIngredients, Recipes,
                            ShoppingCart, Tags)
+from django.core.management import call_command
 
 
 class RecipeIngredientsAdm(admin.ModelAdmin):
@@ -28,10 +29,15 @@ class TagsAdm(admin.ModelAdmin):
 
 
 class IngredientsAdm(admin.ModelAdmin):
+    actions = ['fill_the_base', ]
     model = Ingredients
     list_display = ('id', 'name', 'measurement_unit')
     list_display_links = ('name',)
     list_filter = ['name']
+
+    def fill_the_base(self, request, queryset):
+        for qs in queryset:
+            call_command('fill_the_base')
 
 
 class RecipesAdm(admin.ModelAdmin):
