@@ -30,6 +30,22 @@ class Picture2Text(serializers.ImageField):
         return super().to_internal_value(data)
 
 
+class UserLogin(serializers.ModelSerializer):
+    email = serializers.CharField(
+        write_only=True
+    )
+    password = serializers.CharField(
+        write_only=True
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'password',
+        )
+
+
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:

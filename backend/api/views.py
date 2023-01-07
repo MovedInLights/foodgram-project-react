@@ -9,13 +9,15 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 
 from .download_shopping_cart import download_shopping_cart
 from .filters import RecipeFilter
 from .serializers import (CustomSetPasswordSerializer, IngredientsSerializer,
                           RecipesSerializer, ShoppingCartSerializer,
                           TagSerializer, UserFollowSerializer,
-                          UserRegistrationSerializer, UserSerializer)
+                          UserRegistrationSerializer, UserSerializer, UserLogin)
 from recipe.models import (Favorite, Ingredients, RecipeIngredients, Recipes,
                            ShoppingCart, Tags)
 from users.models import Follow, User
@@ -30,6 +32,22 @@ class RegisterView(APIView):
         serializer.save()
         self.check_object_permissions(request)
         return Response(serializer.data)
+
+
+class CustomAuthToken(ObtainAuthToken):
+    serializer_class = UserLogin
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                       context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        email = request.data['email']
+        password = request.data['password']
+        user = User.objects.filter(email=email).first()
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'auth_token': token.key,
+        })
 
 
 class LoginView(APIView):
