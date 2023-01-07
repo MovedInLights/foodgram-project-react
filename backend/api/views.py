@@ -13,7 +13,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 
 from .download_shopping_cart import download_shopping_cart
-from .filters import RecipeFilter
+from .filters import RecipeFilter, IngredientsFilter
 from .serializers import (CustomSetPasswordSerializer, IngredientsSerializer,
                           RecipesSerializer, ShoppingCartSerializer,
                           TagSerializer, UserFollowSerializer,
@@ -261,7 +261,7 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientsSerializer
     permission_classes = (permissions.AllowAny,)
     filter_backends = (DjangoFilterBackend, )
-    filterset_fields = ('name', )
+    filterset_class = IngredientsFilter
 
 
 class TagViewSet(
