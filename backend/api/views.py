@@ -260,6 +260,8 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
     permission_classes = (permissions.AllowAny,)
+    filter_backends = (DjangoFilterBackend, )
+    filterset_fields = ('name', )
 
 
 class TagViewSet(
