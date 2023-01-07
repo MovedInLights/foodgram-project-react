@@ -265,6 +265,7 @@ class IngredientsViewSet(viewsets.ModelViewSet):
 class TagViewSet(
     mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
 ):
+    pagination_class = None
     queryset = Tags.objects.all()
     serializer_class = TagSerializer
     permission_classes = (permissions.AllowAny,)
