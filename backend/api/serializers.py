@@ -6,6 +6,7 @@ import webcolors
 from django.core.files.base import ContentFile
 from djoser.serializers import SetPasswordSerializer, UserCreateSerializer
 from rest_framework import serializers
+from collections import OrderedDict
 
 
 class Name2Hex(serializers.Field):
@@ -123,6 +124,28 @@ class TagSerializer(serializers.ModelSerializer):
         extra_kwargs = {'id': {'read_only': False}}
 
 
+class TagWithinRecipeSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+
+    class Meta:
+        fields = ('id', 'name', 'color', 'slug')
+        model = Tags
+
+
+class UserRecipeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed'
+        )
+        model = User
+
+
 class IngredientsSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
 
@@ -144,8 +167,9 @@ class IngredientsSerializerRecipes(serializers.ModelSerializer):
 
 
 class RecipesSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+    author = UserRecipeSerializer(many=False, read_only=True)
     image = Picture2Text(required=False, allow_null=True, read_only=True)
+    tags = TagWithinRecipeSerializer(many=True)
     ingredients = IngredientsSerializer(
         many=True, required=False, partial=True
     )
@@ -164,6 +188,16 @@ class RecipesSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
+
+    def to_internal_value(self, data):
+        tags = data.pop('tags', None)
+        data['tags'] = []
+        for tag in tags:
+            obj = Tags.objects.get(id=tag)
+            obj_dict = {'id': obj.id, 'name': obj.name, 'color': obj.color, 'slug': obj.slug}
+            ordered_dict = OrderedDict(obj_dict)
+            data['tags'].append(ordered_dict)
+        return super(RecipesSerializer, self).to_internal_value(data)
 
     def create(self, validated_data):
         new_recipe = Recipes.objects.create(
@@ -192,7 +226,6 @@ class RecipesSerializer(serializers.ModelSerializer):
             new_recipe.tags.add(tag_obj)
 
         new_recipe.save()
-
         return new_recipe
 
     def update(self, instance, validated_data):
