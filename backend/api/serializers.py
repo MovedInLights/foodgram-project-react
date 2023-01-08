@@ -169,7 +169,9 @@ class IngredientsSerializerRecipes(serializers.ModelSerializer):
 class RecipesSerializer(serializers.ModelSerializer):
     author = UserRecipeSerializer(many=False, read_only=True)
     image = Picture2Text(required=False, allow_null=True, read_only=True)
-    tags = TagWithinRecipeSerializer(many=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tags.objects.all(), many=True
+    )
     ingredients = IngredientsSerializer(
         many=True, required=False, partial=True
     )
