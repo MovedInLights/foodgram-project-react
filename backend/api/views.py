@@ -261,6 +261,7 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
     permission_classes = (permissions.AllowAny,)
+    pagination_class = None
     filter_backends = (DjangoFilterBackend, )
     filterset_class = IngredientsFilter
 
