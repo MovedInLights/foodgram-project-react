@@ -169,9 +169,7 @@ class IngredientsSerializerRecipes(serializers.ModelSerializer):
 class RecipesSerializer(serializers.ModelSerializer):
     author = UserRecipeSerializer(many=False, read_only=True)
     image = Picture2Text(required=False, allow_null=True, read_only=True)
-    tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tags.objects.all(), many=True
-    )
+    tags = TagWithinRecipeSerializer(many=True)
     ingredients = IngredientsSerializer(
         many=True, required=False, partial=True
     )
@@ -191,15 +189,15 @@ class RecipesSerializer(serializers.ModelSerializer):
             'cooking_time',
         )
 
-    # def to_internal_value(self, data):
-    #     tags = data.pop('tags', None)
-    #     data['tags'] = []
-    #     for tag in tags:
-    #         obj = Tags.objects.get(id=tag)
-    #         obj_dict = {'id': obj.id, 'name': obj.name, 'color': obj.color, 'slug': obj.slug}
-    #         ordered_dict = OrderedDict(obj_dict)
-    #         data['tags'].append(ordered_dict)
-    #     return super(RecipesSerializer, self).to_internal_value(data)
+    def to_internal_value(self, data):
+        tags = data.pop('tags', None)
+        data['tags'] = []
+        for tag in tags:
+            obj = Tags.objects.get(id=tag)
+            obj_dict = {'id': obj.id, 'name': obj.name, 'color': obj.color, 'slug': obj.slug}
+            ordered_dict = OrderedDict(obj_dict)
+            data['tags'].append(ordered_dict)
+        return super(RecipesSerializer, self).to_internal_value(data)
 
     def create(self, validated_data):
         new_recipe = Recipes.objects.create(
@@ -224,7 +222,7 @@ class RecipesSerializer(serializers.ModelSerializer):
             new_recipe.ingredients.add(ingredient_obj)
 
         for tag in validated_data['tags']:
-            tag_obj = Tags.objects.get(name=tag)
+            tag_obj = Tags.objects.get(**tag)
             new_recipe.tags.add(tag_obj)
 
         new_recipe.save()
