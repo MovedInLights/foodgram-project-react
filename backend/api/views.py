@@ -241,6 +241,7 @@ class FavoriteView(APIView):
         recipe_id = kwargs['pk1']
         recipe = Recipes.objects.get(pk=recipe_id)
         recipe.is_favorited = True
+        recipe.save()
         Favorite.objects.create(user=user, recipe=recipe)
         serializer = ShoppingCartSerializer(recipe)
         return Response(serializer.data)
