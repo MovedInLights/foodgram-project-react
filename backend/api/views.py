@@ -111,42 +111,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
 
-    def create(self, request, **kwargs):
-        data = request.data
-        data['author'] = request.user.__dict__
-        serializer = RecipesSerializer(data=data)
-        if serializer.is_valid():
-            new_recipe = Recipes.objects.create(
-                author=request.user,
-                name=data['name'],
-                image=data['image'],
-                text=data['text'],
-                cooking_time=data['cooking_time'],
-            )
-            new_recipe.save()
-            for ingredient in data['ingredients']:
-                ingredient_obj = Ingredients.objects.get(id=ingredient['id'])
-                RecipeIngredients.objects.create(
-                    recipe=new_recipe,
-                    related_ingredient=ingredient_obj,
-                    quantity=ingredient['amount']
-                )
-                amount = ingredient['amount']
-                ingredient_obj.amount = amount
-                ingredient_obj.save()
-                new_recipe.ingredients.add(ingredient_obj)
-
-            for tag in data['tags']:
-                tag_obj = Tags.objects.get(id=tag)
-                new_recipe.tags.add(tag_obj)
-
-            serializer = RecipesSerializer(new_recipe)
-
-            return Response(serializer.data)
-        return Response({
-                "message": "The data isnt valid"
-            }, status=status.HTTP_400_BAD_REQUEST)
-
 
 class FollowView(APIView):
     def post(self, request, **kwargs):

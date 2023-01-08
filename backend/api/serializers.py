@@ -144,7 +144,7 @@ class IngredientsSerializerRecipes(serializers.ModelSerializer):
 
 
 class RecipesSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
+    author = serializers.StringRelatedField(read_only=True, default=serializers.CurrentUserDefault())
     image = Picture2Text(required=False, allow_null=True, read_only=True)
     ingredients = IngredientsSerializer(
         many=True, required=False, partial=True
@@ -164,6 +164,36 @@ class RecipesSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
+
+    def create(self, validated_data):
+        new_recipe = Recipes.objects.create(
+            author=self.context['request'].user,
+            name=validated_data['name'],
+            image=validated_data['image'],
+            text=validated_data['text'],
+            cooking_time=validated_data['cooking_time'],
+        )
+        new_recipe.save()
+
+        for ingredient in validated_data['ingredients']:
+            ingredient_obj = Ingredients.objects.get(id=ingredient['id'])
+            RecipeIngredients.objects.create(
+                recipe=new_recipe,
+                ingredients=ingredient_obj,
+                amount=ingredient['amount']
+            )
+            amount = ingredient['amount']
+            ingredient_obj.amount = amount
+            ingredient_obj.save()
+            new_recipe.ingredients.add(ingredient_obj)
+
+        for tag in validated_data['tags']:
+            tag_obj = Tags.objects.get(id=tag.id)
+            new_recipe.tags.add(tag_obj)
+
+        new_recipe.save()
+
+        return new_recipe
 
     def update(self, instance, validated_data):
 
