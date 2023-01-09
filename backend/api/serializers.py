@@ -172,7 +172,9 @@ class RecipesSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tags.objects.all(), many=True
     )
-    ingredients = IngredientsSerializer(many=True, required=False)
+    ingredients = IngredientsSerializer(
+        many=True, required=False, partial=True
+    )
 
     class Meta:
         model = Recipes
@@ -188,16 +190,6 @@ class RecipesSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
-
-    # def to_internal_value(self, data):
-    #     tags = data.pop('tags', None)
-    #     data['tags'] = []
-    #     for tag in tags:
-    #         obj = Tags.objects.get(id=tag)
-    #         obj_dict = {'id': obj.id, 'name': obj.name, 'color': obj.color, 'slug': obj.slug}
-    #         ordered_dict = OrderedDict(obj_dict)
-    #         data['tags'].append(ordered_dict)
-    #     return super(RecipesSerializer, self).to_internal_value(data)
 
     def create(self, validated_data):
         author = self.context['request'].user
@@ -230,17 +222,18 @@ class RecipesSerializer(serializers.ModelSerializer):
         tags = validated_data.get('tags')
         instance.ingredients.clear()
         instance.tags.clear()
-
         for ingredient in ingredients:
-            ingredient, created = Ingredients.objects.get_or_create(
-                id=ingredient['id']
+
+            RecipeIngredients.objects.update_or_create(
+                related_ingredient_id=ingredient['id'],
+                recipe_id=instance.id,
+                quantity=ingredient['amount']
             )
-            instance.ingredients.add(ingredient)
+            instance.ingredients.add(ingredient['id'])
 
         for tag in tags:
             tag = Tags.objects.get(id=tag.id)
             instance.tags.add(tag)
-
         instance.save()
         return instance
 
