@@ -167,6 +167,7 @@ class IngredientsSerializerRecipes(serializers.ModelSerializer):
 
 
 class RecipesSerializer(serializers.ModelSerializer):
+    # Tags doesnt work
     author = UserRecipeSerializer(many=False, read_only=True)
     image = Picture2Text(required=False, allow_null=True, read_only=True)
     tags = TagWithinRecipeSerializer(many=True)
