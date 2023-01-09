@@ -167,11 +167,10 @@ class IngredientsSerializerRecipes(serializers.ModelSerializer):
 
 
 class RecipesSerializer(serializers.ModelSerializer):
+    # Tags doesnt work
     author = UserRecipeSerializer(many=False, read_only=True)
-    image = Picture2Text(required=False, allow_null=True)
-    tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tags.objects.all(), many=True
-    )
+    image = Picture2Text(required=False, allow_null=True, read_only=True)
+    tags = TagWithinRecipeSerializer(many=True)
     ingredients = IngredientsSerializer(
         many=True, required=False, partial=True
     )
@@ -191,15 +190,27 @@ class RecipesSerializer(serializers.ModelSerializer):
             'cooking_time',
         )
 
-    def create(self, validated_data):
-        author = self.context['request'].user
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
+    def to_internal_value(self, data):
+        tags = data.pop('tags', None)
+        data['tags'] = []
+        for tag in tags:
+            obj = Tags.objects.get(id=tag)
+            obj_dict = {'id': obj.id, 'name': obj.name, 'color': obj.color, 'slug': obj.slug}
+            ordered_dict = OrderedDict(obj_dict)
+            data['tags'].append(ordered_dict)
+        return super(RecipesSerializer, self).to_internal_value(data)
 
-        new_recipe = Recipes.objects.create(author=author, **validated_data)
+    def create(self, validated_data):
+        new_recipe = Recipes.objects.create(
+            author=self.context['request'].user,
+            name=validated_data['name'],
+            image=validated_data['image'],
+            text=validated_data['text'],
+            cooking_time=validated_data['cooking_time'],
+        )
         new_recipe.save()
 
-        for ingredient in ingredients:
+        for ingredient in validated_data['ingredients']:
             ingredient_obj = Ingredients.objects.get(id=ingredient['id'])
             RecipeIngredients.objects.create(
                 recipe=new_recipe,
@@ -211,7 +222,9 @@ class RecipesSerializer(serializers.ModelSerializer):
             ingredient_obj.save()
             new_recipe.ingredients.add(ingredient_obj)
 
-        new_recipe.tags.set(tags)
+        for tag in validated_data['tags']:
+            tag_obj = Tags.objects.get(**tag)
+            new_recipe.tags.add(tag_obj)
 
         new_recipe.save()
         return new_recipe
@@ -247,12 +260,6 @@ class RecipesSerializer(serializers.ModelSerializer):
                 'Please check your data'
             )
         return data
-
-    def to_representation(self, obj):
-        tags_serialized = TagWithinRecipeSerializer(obj.tags, many=True).data
-        representation = super().to_representation(obj)
-        representation['tags'] = tags_serialized
-        return representation
 
 
 class RecipesSerializerRestricted(serializers.ModelSerializer):
