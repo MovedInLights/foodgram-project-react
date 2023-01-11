@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
+from rest_framework.pagination import PageNumberPagination
 
 from .download_shopping_cart import download_shopping_cart
 from .filters import RecipeFilter, IngredientsFilter
@@ -175,15 +176,16 @@ class ShoppingCartView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class AllFollowingView(APIView):
+class AllFollowingView(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserFollowSerializer
     permission_classes = (permissions.AllowAny,)
+    pagination_class = PageNumberPagination
 
-    def get(self, request):
-
-        request_user_id = request.user.id
+    def get_queryset(self):
+        request_user_id = self.request.user
         following_ids = User.objects.filter(following__user=request_user_id)
-        serializer = UserFollowSerializer(following_ids, many=True)
-        return Response(serializer.data)
+        return following_ids
 
 
 class DownloadShoppingCartView(APIView):
