@@ -109,8 +109,24 @@ class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipes.objects.all()
     serializer_class = RecipesSerializer
     pagination_class = LimitOffsetPagination
-    filter_backends = (DjangoFilterBackend, )
-    filterset_class = RecipeFilter
+    # filter_backends = (DjangoFilterBackend, )
+    # filterset_class = RecipeFilter
+
+    def get_queryset(self):
+        is_favorited = self.request.query_params.get('is_favorited')
+        is_in_shopping_cart = self.request.query_params.get('is_in_shopping_cart')
+        tags = self.request.query_params.getlist('tags')
+        queryset = Recipes.objects.all()
+        if is_favorited:
+            favorite_id = Favorite.objects.filter(user=self.request.user).values_list('recipe', flat=True)
+            queryset = Recipes.objects.filter(id__in=favorite_id)
+        if is_in_shopping_cart:
+            shopping_cart = ShoppingCart.objects.filter(user=self.request.user).values_list('recipe', flat=True)
+            queryset = queryset.filter(id__in=shopping_cart)
+        if tags:
+            tags_id = Tags.objects.filter(slug__in=tags).values_list('id', flat=True)
+            queryset = queryset.filter(tags__in=tags_id)
+        return queryset
 
 
 class FollowView(APIView):
