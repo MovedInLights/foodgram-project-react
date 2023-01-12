@@ -14,7 +14,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.pagination import PageNumberPagination
 
 from .download_shopping_cart import download_shopping_cart
-from .filters import RecipeFilter, IngredientsFilter
+from .filters import IngredientsFilter
 from .serializers import (CustomSetPasswordSerializer, IngredientsSerializer,
                           RecipesSerializer, ShoppingCartSerializer,
                           TagSerializer, UserFollowSerializer,
