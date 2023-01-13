@@ -1,12 +1,12 @@
 import base64
 from users.models import Follow, User
-from recipe.models import Ingredients, RecipeIngredients, Recipes, Tags
+from recipe.models import Ingredients, RecipeIngredients, Recipes, Tags, Favorite, ShoppingCart
 
 import webcolors
 from django.core.files.base import ContentFile
 from djoser.serializers import SetPasswordSerializer, UserCreateSerializer
 from rest_framework import serializers
-from collections import OrderedDict
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Name2Hex(serializers.Field):
@@ -173,6 +173,24 @@ class RecipesSerializer(serializers.ModelSerializer):
         queryset=Tags.objects.all(), many=True
     )
     ingredients = IngredientsSerializer(many=True, required=False)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+
+    def get_is_favorited(self, obj):
+        request = self.context.get('request', None)
+        try:
+            Favorite.objects.get(recipe=obj, user=request.user)
+            return True
+        except ObjectDoesNotExist:
+            return False
+
+    def get_is_in_shopping_cart(self, obj):
+        request = self.context.get('request', None)
+        try:
+            ShoppingCart.objects.get(recipe=obj, user=request.user)
+            return True
+        except ObjectDoesNotExist:
+            return False
 
     class Meta:
         model = Recipes
