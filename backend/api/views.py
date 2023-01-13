@@ -22,6 +22,7 @@ from .serializers import (CustomSetPasswordSerializer, IngredientsSerializer,
 from recipe.models import (Favorite, Ingredients, RecipeIngredients, Recipes,
                            ShoppingCart, Tags)
 from users.models import Follow, User
+from .pagination import CustomPagination
 
 
 class RegisterView(APIView):
@@ -108,9 +109,7 @@ class UserCustomViewSet(UserViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipes.objects.all()
     serializer_class = RecipesSerializer
-    pagination_class = LimitOffsetPagination
-    # filter_backends = (DjangoFilterBackend, )
-    # filterset_class = RecipeFilter
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         is_favorited = self.request.query_params.get('is_favorited')
