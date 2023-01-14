@@ -229,7 +229,6 @@ class RecipesSerializer(serializers.ModelSerializer):
 
         new_recipe.tags.set(tags)
 
-        new_recipe.save()
         return new_recipe
 
     def update(self, instance, validated_data):
