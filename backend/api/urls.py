@@ -12,7 +12,7 @@ router_v1 = DefaultRouter()
 
 router_v1.register('tags', TagViewSet)
 router_v1.register('users/subscriptions', AllFollowingView)
-router_v1.register('recipes', RecipesViewSet, basename='languages')
+router_v1.register('recipes', RecipesViewSet, basename='recipes')
 router_v1.register('ingredients', IngredientsViewSet)
 router_v1.register('users', UserCustomViewSet)
 
