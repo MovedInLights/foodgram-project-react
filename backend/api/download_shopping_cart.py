@@ -49,6 +49,6 @@ def download_shopping_cart(shopping_ids):
 
     p.showPage()
     p.save()
-
+    # Download the file
     buffer.seek(0)
-    return FileResponse(buffer, as_attachment=True, filename='hello.pdf')
+    return FileResponse(buffer, as_attachment=True, filename='Shopping_cart.pdf')
