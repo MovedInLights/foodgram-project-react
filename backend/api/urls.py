@@ -20,15 +20,14 @@ router_v1.register('users', UserCustomViewSet)
 urlpatterns = [
     re_path(r'^auth/', include('djoser.urls')),
     re_path(r'^auth/', include('djoser.urls.jwt')),
-    path('', include(router_v1.urls)),
     path('users/', RegisterView.as_view()),
     path('users/<int:pk1>/subscribe/', FollowView.as_view()),
     path('recipes/<int:pk1>/shopping_cart/', ShoppingCartView.as_view()),
-    path('recipes/download_shopping_cart', DownloadShoppingCartView.as_view()),
+    path('recipes/download_shopping_cart/', DownloadShoppingCartView.as_view()),
     path('recipes/<int:pk1>/favorite/', FavoriteView.as_view()),
-    # path('users/subscriptions', AllFollowingView.as_view()),
     path('auth/token/login/', CustomAuthToken.as_view(), name='login'),
     path('auth/token/logout/', LogoutView.as_view(), name='logout'),
+    path('', include(router_v1.urls)),
 ]
 if settings.DEBUG:
     urlpatterns += static(
