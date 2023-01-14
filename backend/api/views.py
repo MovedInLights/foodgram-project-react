@@ -122,8 +122,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
             shopping_cart = ShoppingCart.objects.filter(user=self.request.user).values_list('recipe', flat=True)
             queryset = queryset.filter(id__in=shopping_cart)
         if tags:
-            tags_id = Tags.objects.filter(slug__in=tags).values_list('id', flat=True)
-            queryset = queryset.filter(tags__in=tags_id)
+            queryset = queryset.filter(tags__slug__in=tags).distinct()
         return queryset
 
 
