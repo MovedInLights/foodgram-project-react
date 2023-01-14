@@ -41,3 +41,4 @@ python-dotenv
 django-colorfield
 gunicorn
 psycopg2-binary
+reportlab
