@@ -107,7 +107,6 @@ class UserCustomViewSet(UserViewSet):
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
-    queryset = Recipes.objects.all()
     serializer_class = RecipesSerializer
     pagination_class = CustomPagination
 
