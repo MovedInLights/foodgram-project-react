@@ -18,7 +18,7 @@ from .filters import IngredientsFilter
 from .serializers import (CustomSetPasswordSerializer, IngredientsSerializer,
                           RecipesSerializer, ShoppingCartSerializer,
                           TagSerializer, UserFollowSerializer,
-                          UserRegistrationSerializer, UserSerializer, UserLogin)
+                          UserRegistrationSerializer, UserSerializer, UserLogin, NewUserSerializer)
 from recipe.models import (Favorite, Ingredients, RecipeIngredients, Recipes,
                            ShoppingCart, Tags)
 from users.models import Follow, User
@@ -29,10 +29,9 @@ class RegisterView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        serializer = NewUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        self.check_object_permissions(request)
         return Response(serializer.data)
 
 
@@ -108,6 +107,7 @@ class UserCustomViewSet(UserViewSet):
 
 class RecipesViewSet(viewsets.ModelViewSet):
     serializer_class = RecipesSerializer
+    permission_classes = (permissions.AllowAny,)
     pagination_class = CustomPagination
 
     def get_queryset(self):

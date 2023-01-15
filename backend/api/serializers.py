@@ -81,6 +81,33 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
+class NewUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'password',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed'
+        )
+
+    def create(self, data):
+        password = data.pop('password', None)
+        instance = self.Meta.model(**data)
+        if password is not None:
+            instance.set_password(password)
+        instance.save()
+        return instance
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response.pop('password')
+        return response
+
+
 class UserRegistrationSerializer(UserCreateSerializer):
     def perform_create(self, validated_data):
         password = validated_data.pop('password', None)
