@@ -4,9 +4,11 @@ import jwt
 from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from rest_framework import mixins, permissions, status, viewsets
+from rest_framework import (
+    mixins, permissions,
+    status, viewsets
+)
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -18,8 +20,9 @@ from .filters import IngredientsFilter
 from .serializers import (CustomSetPasswordSerializer, IngredientsSerializer,
                           RecipesSerializer, ShoppingCartSerializer,
                           TagSerializer, UserFollowSerializer,
-                          UserRegistrationSerializer, UserSerializer, UserLogin, NewUserSerializer)
-from recipe.models import (Favorite, Ingredients, RecipeIngredients, Recipes,
+                          UserRegistrationSerializer,
+                          UserSerializer, UserLogin, NewUserSerializer)
+from recipe.models import (Favorite, Ingredients, Recipes,
                            ShoppingCart, Tags)
 from users.models import Follow, User
 from .pagination import CustomPagination
@@ -39,11 +42,11 @@ class CustomAuthToken(ObtainAuthToken):
     serializer_class = UserLogin
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,
-                                       context={'request': request})
+        serializer = self.serializer_class(
+            data=request.data, context={'request': request}
+        )
         serializer.is_valid(raise_exception=True)
         email = request.data['email']
-        password = request.data['password']
         user = User.objects.filter(email=email).first()
         token, created = Token.objects.get_or_create(user=user)
         return Response({
@@ -112,14 +115,20 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         is_favorited = self.request.query_params.get('is_favorited')
-        is_in_shopping_cart = self.request.query_params.get('is_in_shopping_cart')
+        is_in_shopping_cart = self.request.query_params.get(
+            'is_in_shopping_cart'
+        )
         tags = self.request.query_params.getlist('tags')
         queryset = Recipes.objects.all()
         if is_favorited:
-            favorite_id = Favorite.objects.filter(user=self.request.user).values_list('recipe', flat=True)
+            favorite_id = Favorite.objects.filter(
+                user=self.request.user).values_list('recipe', flat=True
+                                                    )
             queryset = Recipes.objects.filter(id__in=favorite_id)
         if is_in_shopping_cart:
-            shopping_cart = ShoppingCart.objects.filter(user=self.request.user).values_list('recipe', flat=True)
+            shopping_cart = ShoppingCart.objects.filter(
+                user=self.request.user).values_list('recipe', flat=True
+                                                    )
             queryset = queryset.filter(id__in=shopping_cart)
         if tags:
             queryset = queryset.filter(tags__slug__in=tags).distinct()

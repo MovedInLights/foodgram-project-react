@@ -4,7 +4,7 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-from recipe.models import Ingredients, RecipeIngredients, Recipes
+from recipe.models import Ingredients, RecipeIngredients
 
 
 def download_shopping_cart(shopping_ids):
@@ -40,10 +40,9 @@ def download_shopping_cart(shopping_ids):
     for key in ingredients_for_shopping.keys():
         ingredient_name = Ingredients.objects.get(id=key)
         print(ingredients_for_shopping)
-        p.drawString(50, y,
-                 f'{str(ingredient_name)} ('
-                 f'{str(ingredients_for_shopping[key][1])}) '
-                 f'— {str(ingredients_for_shopping[key][0])}')
+        p.drawString(50, y, f'{str(ingredient_name)} ('
+                            f''f'{str(ingredients_for_shopping[key][1])}'
+                            f') 'f'— {str(ingredients_for_shopping[key][0])}')
 
         y = y + 20
 
