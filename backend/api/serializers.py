@@ -311,6 +311,7 @@ class RecipesSerializerRestricted(serializers.ModelSerializer):
 class UserFollowSerializer(serializers.ModelSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     def get_recipes_count(self, obj):
         following_user = User.objects.get(id=obj.id)
@@ -321,6 +322,15 @@ class UserFollowSerializer(serializers.ModelSerializer):
         following_user = User.objects.get(id=obj.id)
         recipes_obj = Recipes.objects.filter(author_id=following_user.id)
         return RecipesSerializerRestricted(recipes_obj, many=True).data
+
+    def get_is_subscribed(self, obj):
+        user = User.objects.get(id=obj.id)
+        print(user)
+        try:
+            Follow.objects.filter(user=user)
+            return True
+        except ObjectDoesNotExist:
+            return False
 
     class Meta:
         model = User
