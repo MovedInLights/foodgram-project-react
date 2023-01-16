@@ -8,6 +8,9 @@ class Ingredients(models.Model):
     name = models.CharField(
         null=True, blank=True, max_length=200, verbose_name='Ingredient_name'
     )
+    amount = models.IntegerField(
+        null=True, blank=True, verbose_name='Ingredient_amount'
+    )
     measurement_unit = models.CharField(max_length=20)
 
     def __str__(self):
@@ -70,7 +73,6 @@ class Recipes(models.Model):
     class Meta:
         verbose_name = 'Recipe'
         verbose_name_plural = 'Recipes'
-        ordering = ['-pub_date']
 
 
 class RecipeIngredients(models.Model):
