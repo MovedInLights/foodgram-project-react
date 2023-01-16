@@ -227,19 +227,23 @@ class RecipesSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         request = self.context.get('request', None)
-        try:
-            Favorite.objects.get(recipe=obj, user=request.user)
-            return True
-        except ObjectDoesNotExist:
-            return False
+        if request.user.is_authenticated:
+            try:
+                Favorite.objects.get(recipe=obj, user=request.user)
+                return True
+            except ObjectDoesNotExist:
+                return False
+        return False
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request', None)
-        try:
-            ShoppingCart.objects.get(recipe=obj, user=request.user)
-            return True
-        except ObjectDoesNotExist:
-            return False
+        if request.user.is_authenticated:
+            try:
+                ShoppingCart.objects.get(recipe=obj, user=request.user)
+                return True
+            except ObjectDoesNotExist:
+                return False
+        return False
 
     class Meta:
         model = Recipes
