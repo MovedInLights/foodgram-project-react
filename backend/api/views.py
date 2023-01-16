@@ -119,7 +119,10 @@ class RecipesViewSet(viewsets.ModelViewSet):
             'is_in_shopping_cart'
         )
         tags = self.request.query_params.getlist('tags')
+        author = self.request.query_params.get('author')
         queryset = Recipes.objects.all()
+        if author:
+            queryset = queryset.filter(author_id=author)
         if is_favorited:
             favorite_id = Favorite.objects.filter(
                 user=self.request.user).values_list('recipe', flat=True
