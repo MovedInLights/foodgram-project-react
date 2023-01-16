@@ -50,6 +50,16 @@ class UserLogin(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField()
+
+    def get_is_subscribed(self, obj):
+        user = User.objects.get(id=obj.id)
+        print(user)
+        try:
+            Follow.objects.filter(user=user)
+            return True
+        except ObjectDoesNotExist:
+            return False
 
     class Meta:
         model = User
