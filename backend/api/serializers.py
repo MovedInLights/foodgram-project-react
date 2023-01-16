@@ -199,7 +199,7 @@ class IngredientsSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
 
     class Meta:
-        fields = ('id', 'name', 'measurement_unit', 'amount')
+        fields = ('id', 'name', 'measurement_unit')
         model = Ingredients
         extra_kwargs = {"name": {"required": False, "allow_null": True},
                         "measurement_unit": {
@@ -211,7 +211,7 @@ class IngredientsSerializer(serializers.ModelSerializer):
 class IngredientsSerializerRecipes(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('id', 'amount', 'measurement_unit')
+        fields = ('id', 'measurement_unit')
         model = Ingredients
 
 
