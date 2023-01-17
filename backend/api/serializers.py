@@ -206,7 +206,7 @@ class IngredientsGetSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ('id', 'name', 'amount', 'measurement_unit')
+        fields = ('id', 'name', 'quantity', 'measurement_unit')
         model = RecipeIngredients
 
 
