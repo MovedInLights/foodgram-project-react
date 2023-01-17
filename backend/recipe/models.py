@@ -44,7 +44,7 @@ class Recipes(models.Model):
     )
     text = models.CharField(max_length=500, verbose_name='Recipe_description')
     ingredients = models.ManyToManyField(
-        Ingredients, verbose_name='Related_ingredients'
+        Ingredients, through='RecipeIngredients', verbose_name='Related_ingredients'
     )
     tags = models.ManyToManyField(Tags, verbose_name='Recipe_tags')
     cooking_time = models.PositiveIntegerField(
