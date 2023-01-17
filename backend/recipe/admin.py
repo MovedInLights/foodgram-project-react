@@ -4,10 +4,9 @@ from recipe.models import (Favorite, Ingredients, RecipeIngredients, Recipes,
 from django.core.management import call_command
 
 
-class RecipeIngredientsAdm(admin.ModelAdmin):
+class RecipeIngredientsInLine(admin.TabularInline):
     model = RecipeIngredients
-    list_display = ('recipe', 'related_ingredient', 'quantity')
-    list_display_links = ('recipe',)
+    extra = 2
 
 
 class ShoppingCartAdm(admin.ModelAdmin):
@@ -55,6 +54,7 @@ class RecipesAdm(admin.ModelAdmin):
     )
     list_display_links = ('name',)
     list_filter = ['author', 'name', 'tags']
+    inlines = (RecipeIngredientsInLine,)
 
     def ingredient(self, obj):
         return ", ".join([ing.name for ing in obj.ingredients.all()])
@@ -69,6 +69,5 @@ class RecipesAdm(admin.ModelAdmin):
 admin.site.register(Tags, TagsAdm)
 admin.site.register(Recipes, RecipesAdm)
 admin.site.register(Ingredients, IngredientsAdm)
-admin.site.register(RecipeIngredients, RecipeIngredientsAdm)
 admin.site.register(ShoppingCart, ShoppingCartAdm)
 admin.site.register(Favorite, FavoriteAdm)
