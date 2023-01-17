@@ -17,8 +17,8 @@ from .filters import IngredientsFilter
 from .serializers import (CustomSetPasswordSerializer, IngredientsSerializer,
                           RecipesSerializer, ShoppingCartSerializer,
                           TagSerializer, UserFollowSerializer,
-                          UserRegistrationSerializer, UserSerializer, UserLogin, NewUserSerializer
-
+                          UserRegistrationSerializer, UserSerializer, UserLogin,
+                          NewUserSerializer, RecipesPostSerializer
                           )
 from recipe.models import (Favorite, Ingredients, RecipeIngredients, Recipes,
                            ShoppingCart, Tags)
@@ -111,8 +111,14 @@ class UserCustomViewSet(UserViewSet):
 
 class RecipesViewSet(viewsets.ModelViewSet):
     serializer_class = RecipesSerializer
+    post_serializer_class = RecipesPostSerializer
     permission_classes = (permissions.AllowAny,)
     pagination_class = CustomPagination
+
+    def get_serializer_class(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return self.serializer_class
+        return self.post_serializer_class
 
     def get_queryset(self):
         is_favorited = self.request.query_params.get('is_favorited')
