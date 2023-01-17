@@ -208,6 +208,14 @@ class IngredientsSerializer(serializers.ModelSerializer):
                         }}
 
 
+class IngredientsSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+
+    class Meta:
+        fields = ('id', 'amount')
+        model = RecipeIngredients
+
+
 class IngredientsSerializerRecipes(serializers.ModelSerializer):
 
     class Meta:
@@ -273,15 +281,12 @@ class RecipesSerializer(serializers.ModelSerializer):
             RecipeIngredients.objects.create(
                 recipe=new_recipe,
                 related_ingredient=ingredient_obj,
-                quantity=ingredient['amount']
+                amount=ingredient['amount']
             )
-            amount = ingredient['amount']
-            ingredient_obj.amount = amount
-            ingredient_obj.save()
             new_recipe.ingredients.add(ingredient_obj)
 
         new_recipe.tags.set(tags)
-
+        new_recipe.save()
         return new_recipe
 
     def update(self, instance, validated_data):
@@ -319,6 +324,19 @@ class RecipesSerializer(serializers.ModelSerializer):
         tags_serialized = TagWithinRecipeSerializer(obj.tags, many=True).data
         representation = super().to_representation(obj)
         representation['tags'] = tags_serialized
+
+        ingredients = representation['ingredients']
+        for ingredient in ingredients:
+            ingredient.pop('amount', None)
+            recipe_with_ingr = RecipeIngredients.objects.get(
+                recipe=representation['id'],
+                related_ingredient__id=ingredient['id']
+            )
+            ing = Ingredients.objects.get(id=ingredient['id'])
+            ingredient['name'] = ing.name
+            ingredient['measurement_unit'] = ing.measurement_unit
+            ingredient['amount'] = recipe_with_ingr.amount
+
         return representation
 
 
