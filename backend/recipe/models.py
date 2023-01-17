@@ -8,6 +8,9 @@ class Ingredients(models.Model):
     name = models.CharField(
         null=True, blank=True, max_length=200, verbose_name='Ingredient_name'
     )
+    amount = models.IntegerField(
+        null=True, blank=True, verbose_name='Ingredient_amount'
+    )
     measurement_unit = models.CharField(max_length=20)
 
     def __str__(self):
@@ -86,7 +89,7 @@ class RecipeIngredients(models.Model):
         related_name='ingredients_for_recipe',
     )
 
-    amount = models.IntegerField(
+    quantity = models.IntegerField(
         null=True,
         blank=True,
         verbose_name='Amount_for_particular_recipe')

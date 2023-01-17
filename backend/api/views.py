@@ -4,10 +4,7 @@ import jwt
 from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from rest_framework import (
-    mixins, permissions,
-    status, viewsets
-)
+from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -20,9 +17,10 @@ from .filters import IngredientsFilter
 from .serializers import (CustomSetPasswordSerializer, IngredientsSerializer,
                           RecipesSerializer, ShoppingCartSerializer,
                           TagSerializer, UserFollowSerializer,
-                          UserRegistrationSerializer,
-                          UserSerializer, UserLogin, NewUserSerializer)
-from recipe.models import (Favorite, Ingredients, Recipes,
+                          UserRegistrationSerializer, UserSerializer, UserLogin, NewUserSerializer
+
+                          )
+from recipe.models import (Favorite, Ingredients, RecipeIngredients, Recipes,
                            ShoppingCart, Tags)
 from users.models import Follow, User
 from .pagination import CustomPagination
@@ -33,8 +31,11 @@ class RegisterView(APIView):
 
     def post(self, request):
         serializer = NewUserSerializer(data=request.data)
+
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        print(serializer.data)
         return Response(serializer.data)
 
 
@@ -42,11 +43,11 @@ class CustomAuthToken(ObtainAuthToken):
     serializer_class = UserLogin
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(
-            data=request.data, context={'request': request}
-        )
+        serializer = self.serializer_class(data=request.data,
+                                       context={'request': request})
         serializer.is_valid(raise_exception=True)
         email = request.data['email']
+        password = request.data['password']
         user = User.objects.filter(email=email).first()
         token, created = Token.objects.get_or_create(user=user)
         return Response({

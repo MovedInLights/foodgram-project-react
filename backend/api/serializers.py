@@ -1,9 +1,7 @@
 import base64
 from users.models import Follow, User
-from recipe.models import (
-    Ingredients, RecipeIngredients,
-    Recipes, Tags, Favorite, ShoppingCart
-)
+from recipe.models import Ingredients, RecipeIngredients, Recipes, Tags, Favorite, ShoppingCart
+
 import webcolors
 from django.core.files.base import ContentFile
 from djoser.serializers import SetPasswordSerializer, UserCreateSerializer
@@ -49,6 +47,33 @@ class UserLogin(serializers.ModelSerializer):
         )
 
 
+class NewUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'password',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed'
+        )
+
+    def create(self, data):
+        password = data.pop('password', None)
+        instance = self.Meta.model(**data)
+        if password is not None:
+            instance.set_password(password)
+        instance.save()
+        return instance
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response.pop('password')
+        return response
+
+
 class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
@@ -85,39 +110,13 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+        print(validated_data)
         password = validated_data.pop('password', None)
         instance = self.Meta.model(**validated_data)
         if password is not None:
             instance.set_password(password)
         instance.save()
         return instance
-
-
-class NewUserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'password',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed'
-        )
-
-    def create(self, data):
-        password = data.pop('password', None)
-        instance = self.Meta.model(**data)
-        if password is not None:
-            instance.set_password(password)
-        instance.save()
-        return instance
-
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response.pop('password')
-        return response
 
 
 class UserRegistrationSerializer(UserCreateSerializer):
@@ -127,6 +126,7 @@ class UserRegistrationSerializer(UserCreateSerializer):
         if password is not None:
             instance.set_password(password)
         instance.save()
+        print(instance)
         return instance
 
 
@@ -172,16 +172,6 @@ class TagWithinRecipeSerializer(serializers.ModelSerializer):
 
 
 class UserRecipeSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.SerializerMethodField()
-
-    def get_is_subscribed(self, obj):
-        user = User.objects.get(id=obj.id)
-        print(user)
-        try:
-            Follow.objects.filter(user=user)
-            return True
-        except ObjectDoesNotExist:
-            return False
 
     class Meta:
         fields = (
@@ -199,21 +189,13 @@ class IngredientsSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
 
     class Meta:
-        fields = ('id', 'name', 'measurement_unit')
+        fields = ('id', 'name', 'amount', 'measurement_unit')
         model = Ingredients
         extra_kwargs = {"name": {"required": False, "allow_null": True},
                         "measurement_unit": {
                             "required": False,
                             "allow_null": True
                         }}
-
-
-class IngredientsSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
-
-    class Meta:
-        fields = ('id', 'amount')
-        model = RecipeIngredients
 
 
 class IngredientsSerializerRecipes(serializers.ModelSerializer):
@@ -272,40 +254,36 @@ class RecipesSerializer(serializers.ModelSerializer):
         author = self.context['request'].user
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-
         new_recipe = Recipes.objects.create(author=author, **validated_data)
         new_recipe.save()
-
         for ingredient in ingredients:
+            print(ingredient)
             ingredient_obj = Ingredients.objects.get(id=ingredient['id'])
             RecipeIngredients.objects.create(
                 recipe=new_recipe,
                 related_ingredient=ingredient_obj,
-                amount=ingredient['amount']
+                quantity=ingredient['amount']
             )
+            amount = ingredient['amount']
+            ingredient_obj.amount = amount
+            ingredient_obj.save()
             new_recipe.ingredients.add(ingredient_obj)
-
         new_recipe.tags.set(tags)
-        new_recipe.save()
         return new_recipe
 
     def update(self, instance, validated_data):
-
         ingredients = validated_data.get('ingredients')
         tags = validated_data.get('tags')
         instance.ingredients.clear()
         instance.tags.clear()
-
         for ingredient in ingredients:
             ingredient, created = Ingredients.objects.get_or_create(
                 id=ingredient['id']
             )
             instance.ingredients.add(ingredient)
-
         for tag in tags:
             tag = Tags.objects.get(id=tag.id)
             instance.tags.add(tag)
-
         instance.save()
         return instance
 
@@ -319,24 +297,10 @@ class RecipesSerializer(serializers.ModelSerializer):
                 'Please check your data'
             )
         return data
-
     def to_representation(self, obj):
         tags_serialized = TagWithinRecipeSerializer(obj.tags, many=True).data
         representation = super().to_representation(obj)
         representation['tags'] = tags_serialized
-
-        ingredients = representation['ingredients']
-        for ingredient in ingredients:
-            ingredient.pop('amount', None)
-            recipe_with_ingr = RecipeIngredients.objects.get(
-                recipe=representation['id'],
-                related_ingredient__id=ingredient['id']
-            )
-            ing = Ingredients.objects.get(id=ingredient['id'])
-            ingredient['name'] = ing.name
-            ingredient['measurement_unit'] = ing.measurement_unit
-            ingredient['amount'] = recipe_with_ingr.amount
-
         return representation
 
 
@@ -387,6 +351,44 @@ class UserFollowSerializer(serializers.ModelSerializer):
             'is_subscribed',
             'recipes',
             'recipes_count'
+        )
+
+    def validate_following(self, data):
+        if self.context['request'].user == data['following']:
+            raise serializers.ValidationError(
+                'Self follow attempt'
+            )
+        return data
+
+
+class AllSubscriptionsSerializer(serializers.ModelSerializer):
+    recipes = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
+
+    def get_recipes(self, obj):
+        following_user = User.objects.get(id=obj.id)
+        recipes_obj = Recipes.objects.filter(author_id=following_user.id)
+        return RecipesSerializerRestricted(recipes_obj, many=True).data
+
+    def get_is_subscribed(self, obj):
+        user = User.objects.get(id=obj.id)
+        print(user)
+        try:
+            Follow.objects.filter(user=user)
+            return True
+        except ObjectDoesNotExist:
+            return False
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
         )
 
     def validate_following(self, data):

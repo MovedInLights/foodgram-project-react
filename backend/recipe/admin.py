@@ -6,7 +6,7 @@ from django.core.management import call_command
 
 class RecipeIngredientsAdm(admin.ModelAdmin):
     model = RecipeIngredients
-    list_display = ('recipe', 'related_ingredient', 'amount')
+    list_display = ('recipe', 'related_ingredient', 'quantity')
     list_display_links = ('recipe',)
 
 
