@@ -186,6 +186,19 @@ class UserRecipeSerializer(serializers.ModelSerializer):
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+
+    class Meta:
+        fields = ('id', 'name', 'amount', 'measurement_unit')
+        model = Ingredients
+        extra_kwargs = {"name": {"required": False, "allow_null": True},
+                        "measurement_unit": {
+                            "required": False,
+                            "allow_null": True
+                        }}
+
+
+class IngredientsGetSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='related_ingredient.id')
     name = serializers.CharField(source='related_ingredient.name')
     measurement_unit = serializers.CharField(
@@ -193,7 +206,7 @@ class IngredientsSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ('id', 'name', 'quantity', 'measurement_unit')
+        fields = ('id', 'name', 'amount', 'measurement_unit')
         model = RecipeIngredients
 
 
@@ -290,7 +303,7 @@ class RecipesSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tags.objects.all(), many=True
     )
-    ingredients = IngredientsSerializer(many=True, source='recipe_with_ing')
+    ingredients = IngredientsGetSerializer(many=True, source='recipe_with_ing')
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
