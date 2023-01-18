@@ -1,6 +1,8 @@
 import base64
 from users.models import Follow, User
-from recipe.models import Ingredients, RecipeIngredients, Recipes, Tags, Favorite, ShoppingCart
+from recipe.models import (
+    Ingredients, RecipeIngredients, Recipes, Tags, Favorite, ShoppingCart
+)
 
 import webcolors
 from django.core.files.base import ContentFile

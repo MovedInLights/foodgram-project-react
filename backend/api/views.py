@@ -17,11 +17,11 @@ from .filters import IngredientsFilter
 from .serializers import (CustomSetPasswordSerializer, IngredientsSerializer,
                           RecipesSerializer, ShoppingCartSerializer,
                           TagSerializer, UserFollowSerializer,
-                          UserRegistrationSerializer, UserSerializer, UserLogin,
-                          NewUserSerializer, RecipesPostSerializer
+                          UserRegistrationSerializer, UserSerializer,
+                          UserLogin, NewUserSerializer, RecipesPostSerializer
                           )
-from recipe.models import (Favorite, Ingredients, RecipeIngredients, Recipes,
-                           ShoppingCart, Tags)
+from recipe.models import (Favorite, Ingredients,
+                           Recipes, ShoppingCart, Tags)
 from users.models import Follow, User
 from .pagination import CustomPagination
 
@@ -43,11 +43,11 @@ class CustomAuthToken(ObtainAuthToken):
     serializer_class = UserLogin
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,
-                                       context={'request': request})
+        serializer = self.serializer_class(
+            data=request.data, context={'request': request}
+        )
         serializer.is_valid(raise_exception=True)
         email = request.data['email']
-        password = request.data['password']
         user = User.objects.filter(email=email).first()
         token, created = Token.objects.get_or_create(user=user)
         return Response({

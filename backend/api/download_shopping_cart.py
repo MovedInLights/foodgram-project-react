@@ -28,6 +28,9 @@ def download_shopping_cart(shopping_ids):
     for key in ingredients_for_shopping.keys():
         ingredient_name = Ingredients.objects.get(id=key)
         print(ingredients_for_shopping)
-        content += f'{str(ingredient_name)} {str(ingredients_for_shopping[key][1])} {str(ingredients_for_shopping[key][0])}\n  '
+        content += f'' \
+                   f'{str(ingredient_name)} ' \
+                   f'{str(ingredients_for_shopping[key][1])} ' \
+                   f'{str(ingredients_for_shopping[key][0])}\n  '
 
     return HttpResponse(content, content_type='text/plain')
