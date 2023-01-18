@@ -24,10 +24,10 @@ def download_shopping_cart(shopping_ids):
                 # No key in data, add
                 ingredients_for_shopping[cart_obj_id] = [quantity]
                 ingredients_for_shopping[cart_obj_id].append(measurement_unit)
-    content = ''
+    content = 'Ingredients for shopping :)\n'
     for key in ingredients_for_shopping.keys():
         ingredient_name = Ingredients.objects.get(id=key)
         print(ingredients_for_shopping)
-        content += f'{str(ingredient_name)} {str(ingredients_for_shopping[key][1])} {str(ingredients_for_shopping[key][0])}  '
+        content += f'{str(ingredient_name)} {str(ingredients_for_shopping[key][1])} {str(ingredients_for_shopping[key][0])}\n  '
 
     return HttpResponse(content, content_type='text/plain')
