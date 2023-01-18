@@ -10,11 +10,11 @@ def download_shopping_cart(shopping_ids):
         ingredients_obj = RecipeIngredients.objects.filter(
             recipe_id=shopping_id
         )
-        print(ingredients_obj)
+        ingredient = Ingredients.objects.get(id=shopping_id)
         for ingredient_obj in ingredients_obj:
             cart_obj_id = ingredient_obj.related_ingredient_id
             quantity = ingredient_obj.quantity
-            measurement_unit = ingredient_obj.measurement_unit
+            measurement_unit = ingredient.measurement_unit
 
             if cart_obj_id in ingredients_for_shopping.keys():
                 # Add amount for existing key
