@@ -50,4 +50,4 @@ def download_shopping_cart(shopping_ids):
     p.save()
 
     buffer.seek(0)
-    return FileResponse(buffer, as_attachment=True, filename='hello.pdf')
+    return FileResponse(buffer, filename='Shopping_Cart.pdf')
