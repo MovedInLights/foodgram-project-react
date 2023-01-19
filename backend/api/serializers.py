@@ -284,8 +284,12 @@ class RecipesPostSerializer(serializers.ModelSerializer):
 
     def validate_ingredients(self, data):
         ingredients = []
-        for items in data:
-            ingredients.append(items['id'])
+        for item in data:
+            if item['amount'] < 0:
+                raise serializers.ValidationError(
+                    'Cant be negative number'
+                )
+            ingredients.append(item['id'])
         if len(ingredients) != len(set(ingredients)):
             raise serializers.ValidationError(
                 'Some ingredients are duplicated. '
@@ -375,7 +379,7 @@ class UserFollowSerializer(serializers.ModelSerializer):
 
     def get_recipes(self, obj):
         following_user = User.objects.get(id=obj.id)
-        recipes_obj = Recipes.objects.filter(author_id=following_user.id)
+        recipes_obj = Recipes.objects.filter(author_id=following_user.id)[:3]
         return RecipesSerializerRestricted(recipes_obj, many=True).data
 
     def get_is_subscribed(self, obj):

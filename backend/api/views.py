@@ -10,7 +10,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from rest_framework.pagination import PageNumberPagination
 
 from .download_shopping_cart import download_shopping_cart
 from .filters import IngredientsFilter
