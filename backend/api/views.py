@@ -23,7 +23,7 @@ from .serializers import (CustomSetPasswordSerializer, IngredientsSerializer,
 from recipe.models import (Favorite, Ingredients,
                            Recipes, ShoppingCart, Tags)
 from users.models import Follow, User
-from .pagination import CustomPagination
+from .pagination import CustomPagination, CustomSubscriptionsPagination
 
 
 class RegisterView(APIView):
@@ -212,7 +212,7 @@ class AllFollowingView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserFollowSerializer
     permission_classes = (permissions.AllowAny,)
-    pagination_class = PageNumberPagination
+    pagination_class = CustomSubscriptionsPagination
 
     def get_queryset(self):
         request_user_id = self.request.user
