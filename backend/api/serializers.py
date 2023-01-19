@@ -414,7 +414,7 @@ class AllSubscriptionsSerializer(serializers.ModelSerializer):
 
     def get_recipes(self, obj):
         following_user = User.objects.get(id=obj.id)
-        recipes_obj = Recipes.objects.filter(author_id=following_user.id)
+        recipes_obj = Recipes.objects.filter(author_id=following_user.id)[:3]
         return RecipesSerializerRestricted(recipes_obj, many=True).data
 
     def get_is_subscribed(self, obj):
